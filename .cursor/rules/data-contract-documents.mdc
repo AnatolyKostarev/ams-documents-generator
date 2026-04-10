@@ -1,0 +1,45 @@
+---
+description: Keep DocumentData contract consistent across JSON, mock, API, and pages
+alwaysApply: true
+---
+
+# Document Data Contract
+
+- `DocumentData` is the single source of truth for frontend data shape.
+- Every document JSON must include all required contract fields.
+- Use strict mapping from raw JSON into `DocumentData` in data loaders.
+- Keep `categorySlug` and mapped `categoryId/category` synchronized.
+- `metaTitle` and `metaDesc` may contain `{year}` and should be rendered with current year.
+
+## Validation Expectations
+
+- `slug` must be unique among all documents.
+- `relatedIds` should reference existing document slugs only.
+- `published` controls visibility in routes, homepage blocks, and sitemap.
+- `updatedAt` must be present for `lastModified` in sitemap.
+- Form fields should use supported types only: `text | select | date | number`.
+
+## Migration Rule
+
+- Switching from mock JSON to DB/Prisma must not change UI component contracts.
+
+## File Scope
+
+- `src/types/index.ts`
+- `src/data/categories.json`
+- `src/data/documents/*.json`
+- `src/lib/mock.ts`
+- `src/app/api/generate/route.ts`
+
+## Block Conditions
+
+- Do not merge content where `categorySlug` has no matching category.
+- Do not merge content where `parentSlug` references a non-existent hub.
+- Do not merge content where `relatedIds` include unknown slugs.
+- Do not remove required fields to satisfy temporary UI shortcuts.
+
+## Done Criteria
+
+- Route generation works for all `published: true` documents.
+- `sitemap.xml` includes only published entries with valid URLs.
+- `npm run lint` and `npm run build` pass.

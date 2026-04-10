@@ -11,6 +11,12 @@ npm run dev
 
 Приложение будет доступно на [http://localhost:3000](http://localhost:3000).
 
+## AI rules и skills
+
+- Политика коммитов: `.cursor/rules/commit-and-push-policy.mdc`
+- Матрица соответствия правил и навыков: `.cursor/rules-skills-matrix.md`
+- Project skills: `.cursor/skills/`
+
 ## Что уже подготовлено
 
 - трехуровневый роутинг:

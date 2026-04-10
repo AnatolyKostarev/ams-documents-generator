@@ -1,0 +1,48 @@
+---
+description: Enforce SEO metadata, robots, sitemap, and JSON-LD standards
+alwaysApply: true
+---
+
+# SEO And Schema Standards
+
+- Every page must provide meaningful metadata (`title`, `description`).
+- Document and category metadata should support `{year}` replacement with current year.
+- Use canonical URLs for indexable pages.
+- `robots.ts` must block technical paths and noisy query patterns.
+- `sitemap.ts` must include only published content and use `updatedAt` for `lastModified`.
+
+## Required JSON-LD
+
+- Homepage: `WebSite` (+ `SearchAction`) and `SoftwareApplication`.
+- Category page: `BreadcrumbList` and `ItemList` when applicable.
+- Document and variation pages: `BreadcrumbList`, `FAQPage`, `HowTo`.
+
+## UX/SEO Coupling
+
+- Keep legal disclaimer visible on site pages and aligned with PDF disclaimer text.
+- Ensure server-rendered content remains readable with JavaScript disabled.
+
+## File Scope
+
+- `src/app/page.tsx`
+- `src/app/ai-generator/page.tsx`
+- `src/app/[category]/page.tsx`
+- `src/app/[category]/[document]/page.tsx`
+- `src/app/[category]/[document]/[variation]/page.tsx`
+- `src/app/robots.ts`
+- `src/app/sitemap.ts`
+- `src/lib/schema.ts`
+
+## Operational Rules
+
+- Homepage must include `WebSite` and `SoftwareApplication` schemas.
+- Category pages must expose indexable metadata and breadcrumb schema.
+- Hub/variation pages must include `BreadcrumbList`, `FAQPage`, and `HowTo`.
+- `robots.ts` must disallow `/api/`, `/admin/`, `/cabinet/`, `/*?sort=`, `/*?utm_`, `/*?ref=`.
+- `sitemap.ts` must not include unpublished documents.
+
+## Done Criteria
+
+- Metadata is unique for homepage, categories, hubs, and variations.
+- Schema blocks exist for each route type and serialize as valid JSON.
+- `npm run build` succeeds and generates `robots.txt` and `sitemap.xml`.

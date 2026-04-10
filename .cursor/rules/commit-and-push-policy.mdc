@@ -1,0 +1,29 @@
+---
+description: Commit and push policy for ams-documents-generator
+alwaysApply: true
+---
+
+# Commit And Push Policy
+
+- Commit only when the user explicitly asks to commit.
+- Keep one commit for one logical change; do not mix unrelated edits.
+- Before commit, run project checks relevant to changed areas (at minimum lint/format checks).
+- Do not commit secrets or sensitive files (`.env`, credentials, tokens, keys).
+- Use English commit messages in Conventional Commit style: `<type>: <summary>`.
+
+Allowed `type` values:
+- `feat`, `fix`, `refactor`, `docs`, `test`, `chore`
+
+Message requirements:
+- Keep subject concise and imperative.
+- Focus on intent/why, not a file-by-file dump.
+
+Push policy:
+- Push only when the user explicitly asks to push.
+- Never push directly to `main`; push to a feature branch.
+- Do not use force-push unless the user explicitly asks.
+
+Before push checklist:
+- Working tree is clean after commit.
+- Local checks pass for changed scope.
+- Branch is correct and up to date with target flow.

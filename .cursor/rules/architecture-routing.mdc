@@ -1,0 +1,40 @@
+---
+description: Enforce DocGenerator URL architecture and hierarchy
+alwaysApply: true
+---
+
+# Architecture And Routing
+
+- Keep three-level routing: `/<category>/`, `/<category>/<document>/`, `/<category>/<document>/<variation>/`.
+- Treat documents with `parentId: null` as hubs and documents with `parentId` as variations.
+- Build URLs from canonical parts only: `category.slug`, `hub.slug`, `variation.slug`.
+- Never hardcode full URLs in components when a helper can build them.
+- Category pages list hub documents; variation pages must resolve by parent hub.
+- `generateStaticParams` must include all published routes and preserve hierarchy.
+- `notFound()` should be used for unresolved category/document/variation combinations.
+
+## Data Integrity Checks
+
+- Each `variation.parentId` must reference an existing hub document.
+- Do not create cross-category parent-child relations.
+- Keep routing logic centralized in `src/lib` helpers when possible.
+
+## File Scope
+
+- `src/app/[category]/page.tsx`
+- `src/app/[category]/[document]/page.tsx`
+- `src/app/[category]/[document]/[variation]/page.tsx`
+- `src/lib/mock.ts`
+- `src/app/sitemap.ts`
+
+## Operational Rules
+
+- Any new published hub document must produce a valid `/[category]/[document]/` route.
+- Any new published variation must produce a valid `/[category]/[document]/[variation]/` route.
+- Variation pages must include full breadcrumb hierarchy (home -> category -> hub -> variation).
+- Block changes that break static params generation for published content.
+
+## Done Criteria
+
+- `npm run build` succeeds.
+- No generated route points to missing category/hub/variation references.
