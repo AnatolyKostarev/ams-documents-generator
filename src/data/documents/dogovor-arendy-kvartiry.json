@@ -1,0 +1,46 @@
+{
+  "id": "doc_006",
+  "slug": "dogovor-arendy-kvartiry",
+  "categorySlug": "dogovory",
+  "parentSlug": null,
+  "title": "Договор аренды квартиры",
+  "titleGen": "договор аренды квартиры",
+  "titleH1": "Договор аренды квартиры - образец {year}",
+  "metaTitle": "Договор аренды квартиры образец {year} - заполнить онлайн",
+  "metaDesc": "Создайте документ \"Договор аренды квартиры\" онлайн за 30 секунд.",
+  "legalBasis": "гл. 34 ГК РФ",
+  "formFields": [
+    {
+      "id": "fullName",
+      "label": "ФИО",
+      "type": "text",
+      "placeholder": "Иванов Иван Иванович",
+      "required": true,
+      "gridCol": "full"
+    },
+    {
+      "id": "date",
+      "label": "Дата",
+      "type": "date",
+      "required": true,
+      "gridCol": "half"
+    }
+  ],
+  "templateBody": "Договор аренды квартиры\n\n{{fullName}}\n{{date}}",
+  "contentBody": "<p>Контент-заглушка для документа Договор аренды квартиры. В следующей итерации будет расширен до 600-900 слов.</p>",
+  "faq": [
+    {
+      "question": "Когда используется этот документ?",
+      "answer": "Документ используется в типовых юридических и бытовых ситуациях."
+    },
+    {
+      "question": "Можно ли скачать в PDF?",
+      "answer": "Да, после генерации документ доступен для скачивания."
+    }
+  ],
+  "relatedIds": [],
+  "priority": 0,
+  "published": true,
+  "createdAt": "2026-04-08T00:00:00.000Z",
+  "updatedAt": "2026-04-08T00:00:00.000Z"
+}

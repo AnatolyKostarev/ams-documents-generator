@@ -1,0 +1,46 @@
+{
+  "id": "doc_010",
+  "slug": "pretenziya-o-vozvrate-deneg",
+  "categorySlug": "zhaloby-i-pretenzii",
+  "parentSlug": null,
+  "title": "Претензия о возврате денег",
+  "titleGen": "претензия о возврате денег",
+  "titleH1": "Претензия о возврате денег - образец {year}",
+  "metaTitle": "Претензия о возврате денег образец {year} - заполнить онлайн",
+  "metaDesc": "Создайте документ \"Претензия о возврате денег\" онлайн за 30 секунд.",
+  "legalBasis": "ЗоЗПП ст. 18",
+  "formFields": [
+    {
+      "id": "fullName",
+      "label": "ФИО",
+      "type": "text",
+      "placeholder": "Иванов Иван Иванович",
+      "required": true,
+      "gridCol": "full"
+    },
+    {
+      "id": "date",
+      "label": "Дата",
+      "type": "date",
+      "required": true,
+      "gridCol": "half"
+    }
+  ],
+  "templateBody": "Претензия о возврате денег\n\n{{fullName}}\n{{date}}",
+  "contentBody": "<p>Контент-заглушка для документа Претензия о возврате денег. В следующей итерации будет расширен до 600-900 слов.</p>",
+  "faq": [
+    {
+      "question": "Когда используется этот документ?",
+      "answer": "Документ используется в типовых юридических и бытовых ситуациях."
+    },
+    {
+      "question": "Можно ли скачать в PDF?",
+      "answer": "Да, после генерации документ доступен для скачивания."
+    }
+  ],
+  "relatedIds": [],
+  "priority": 0,
+  "published": true,
+  "createdAt": "2026-04-08T00:00:00.000Z",
+  "updatedAt": "2026-04-08T00:00:00.000Z"
+}

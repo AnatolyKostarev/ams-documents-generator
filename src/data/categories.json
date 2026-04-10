@@ -1,0 +1,58 @@
+[
+  {
+    "id": "cat_zayavleniya",
+    "slug": "zayavleniya",
+    "title": "Заявления",
+    "titleGen": "заявлений",
+    "description": "Образцы заявлений и шаблоны",
+    "priority": 0
+  },
+  {
+    "id": "cat_dogovory",
+    "slug": "dogovory",
+    "title": "Договоры",
+    "titleGen": "договоров",
+    "description": "Образцы договоров",
+    "priority": 0
+  },
+  {
+    "id": "cat_zhaloby",
+    "slug": "zhaloby-i-pretenzii",
+    "title": "Жалобы и претензии",
+    "titleGen": "жалоб и претензий",
+    "description": "Жалобы, претензии и обращения",
+    "priority": 0
+  },
+  {
+    "id": "cat_doverennosti",
+    "slug": "doverennosti",
+    "title": "Доверенности",
+    "titleGen": "доверенностей",
+    "description": "Образцы доверенностей",
+    "priority": 0
+  },
+  {
+    "id": "cat_akty",
+    "slug": "akty",
+    "title": "Акты",
+    "titleGen": "актов",
+    "description": "Акты для типовых случаев",
+    "priority": 0
+  },
+  {
+    "id": "cat_biznes",
+    "slug": "biznes-dokumenty",
+    "title": "Бизнес-документы",
+    "titleGen": "бизнес-документов",
+    "description": "Документы для бизнеса",
+    "priority": 0
+  },
+  {
+    "id": "cat_lichnye",
+    "slug": "lichnye",
+    "title": "Личные документы",
+    "titleGen": "личных документов",
+    "description": "Личные заявления, расписки, согласия",
+    "priority": 1
+  }
+]

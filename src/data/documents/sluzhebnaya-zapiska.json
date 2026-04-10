@@ -1,0 +1,46 @@
+{
+  "id": "doc_017",
+  "slug": "sluzhebnaya-zapiska",
+  "categorySlug": "biznes-dokumenty",
+  "parentSlug": null,
+  "title": "Служебная записка",
+  "titleGen": "служебная записка",
+  "titleH1": "Служебная записка - образец {year}",
+  "metaTitle": "Служебная записка образец {year} - заполнить онлайн",
+  "metaDesc": "Создайте документ \"Служебная записка\" онлайн за 30 секунд.",
+  "legalBasis": "внутренний регламент",
+  "formFields": [
+    {
+      "id": "fullName",
+      "label": "ФИО",
+      "type": "text",
+      "placeholder": "Иванов Иван Иванович",
+      "required": true,
+      "gridCol": "full"
+    },
+    {
+      "id": "date",
+      "label": "Дата",
+      "type": "date",
+      "required": true,
+      "gridCol": "half"
+    }
+  ],
+  "templateBody": "Служебная записка\n\n{{fullName}}\n{{date}}",
+  "contentBody": "<p>Контент-заглушка для документа Служебная записка. В следующей итерации будет расширен до 600-900 слов.</p>",
+  "faq": [
+    {
+      "question": "Когда используется этот документ?",
+      "answer": "Документ используется в типовых юридических и бытовых ситуациях."
+    },
+    {
+      "question": "Можно ли скачать в PDF?",
+      "answer": "Да, после генерации документ доступен для скачивания."
+    }
+  ],
+  "relatedIds": [],
+  "priority": 1,
+  "published": true,
+  "createdAt": "2026-04-08T00:00:00.000Z",
+  "updatedAt": "2026-04-08T00:00:00.000Z"
+}
