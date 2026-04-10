@@ -1,38 +1,47 @@
 ---
 name: docgenerator-frontend-implementation
-overview: Пошаговый план реализации фронтенд-части DocGenerator MVP в `ams-documents-generator` с FSD-структурой, SEO, роутингом и готовностью к замене мок-данных на backend API.
+overview: План реализации frontend DocGenerator MVP в монорепозитории (pnpm workspaces + turbo) с FSD-структурой, SEO, роутингом и готовностью к интеграции с apps/api.
 todos:
-  - id: fe-init-fsd
-    content: Инициализировать Next.js проект и развернуть FSD-структуру в src/
+  - id: fe-mono-bootstrap
+    content: Инициализировать монорепозиторий и pipeline (pnpm workspaces + turbo)
     status: pending
-  - id: fe-domain-model
-    content: Внедрить единую модель DocumentData/Category и mock repositories
+  - id: fe-web-fsd
+    content: Развернуть apps/web и зафиксировать FSD-границы
+    status: pending
+  - id: fe-shared-contract
+    content: Вынести единый контракт данных в packages/shared и подключить mock repositories
     status: pending
   - id: fe-routing-pages
-    content: Реализовать страницы и трехуровневый роутинг через App Router + pages composition
+    content: Реализовать страницы и трехуровневый роутинг в apps/web через App Router + pages composition
     status: pending
   - id: fe-core-widgets
-    content: "Собрать ключевые widgets/features: widget, preview, modal, trust, related, lead"
+    content: Собрать ключевые widgets/features (widget, preview, modal, trust, related, lead) в apps/web
     status: pending
   - id: fe-seo
-    content: Настроить metadata, schema.org, robots, sitemap
+    content: Настроить metadata, schema.org, robots, sitemap и quality-gates через turbo
     status: pending
   - id: fe-api-bridge
-    content: Подготовить API handlers и адаптер к будущему backend
+    content: Подготовить API bridge и адаптер переключения mock/http для apps/api
     status: pending
   - id: fe-qa
-    content: Провести UX/SEO/perf проверки и закрыть DoD
+    content: Провести UX/SEO/perf проверки и закрыть DoD в monorepo pipeline
     status: pending
 isProject: false
 ---
 
-# Frontend Implementation Plan — DocGenerator MVP
+# Frontend Implementation Plan — DocGenerator MVP (Monorepo)
 
 ## Цель
-Собрать production-ready frontend на Next.js App Router с трехуровневым роутингом, корректным SEO/Schema, и FSD-архитектурой, чтобы backend можно было подключить заменой ограниченного числа точек интеграции.
+Собрать production-ready frontend в `apps/web` (Next.js App Router) с трехуровневым роутингом, корректным SEO/Schema и FSD-архитектурой в рамках монорепозитория, чтобы backend из `apps/api` подключался без переразметки UI.
+
+## Монорепо-структура (целевая)
+- `apps/web` — frontend (App Router + FSD)
+- `apps/api` — backend API
+- `packages/shared` — общие типы/схемы/константы
+- `packages/config` — общие eslint/tsconfig/prettier настройки
 
 ## Базовая FSD-структура (обязательная)
-- `app` — только маршруты, layout, metadata, `robots`, `sitemap`, API handlers, глобальные providers.
+- `app` — только маршруты, layout, metadata, `robots`, `sitemap`, глобальные providers.
 - `pages` — page-level композиция (при App Router: вынесенные page-composer компоненты).
 - `widgets` — крупные блоки страниц (DocumentWidgetZone, RelatedDocsStrip, CategoryDocsList).
 - `features` — пользовательские сценарии (генерация, копирование, переключение режимов, скачивание).
@@ -48,48 +57,59 @@ isProject: false
 
 ## Последовательность внедрения
 
-### 1) Инициализация каркаса и FSD-слоев
-- Создать Next.js 14+ проект в `src/` с TypeScript strict.
-- Развернуть каталоги: `src/app`, `src/pages`, `src/widgets`, `src/features`, `src/entities`, `src/shared`.
-- Настроить alias `@/*` и запрет cross-layer импортов (eslint rules/архитектурные соглашения).
-- Вынести общий дисклеймер и константы в `src/shared/config/constants.ts`.
+### 1) Bootstrap монорепозитория
+- Настроить `pnpm-workspace.yaml`, root `package.json`, `turbo.json`.
+- Подключить root scripts: `dev`, `build`, `lint`, `typecheck`, `test`.
+- Создать `packages/config` с едиными правилами eslint/tsconfig/prettier.
+- Подготовить `packages/shared` (каркас экспорта контрактов).
 
-### 2) Единые типы и мок-источник данных
-- Описать `Category`, `FormField`, `FaqItem`, `DocumentData` в `src/entities/document/model/types.ts` и `src/entities/category/model/types.ts`.
-- Сделать `src/entities/document/api/mock-repository.ts` и `src/entities/category/api/mock-repository.ts`.
-- Разместить JSON-данные в `src/shared/data/categories.json` и `src/shared/data/documents/*.json`.
+### 2) Подъем `apps/web` и FSD-каркаса
+- Развернуть Next.js в `apps/web`.
+- Создать структуру `apps/web/src/app|pages|widgets|features|entities|shared`.
+- Настроить alias `@/*` и запрет cross-layer импортов.
+- Подключить shared-конфиг из `packages/config`.
+
+### 3) Единый контракт и мок-данные
+- Описать `Category`, `FormField`, `FaqItem`, `DocumentData` в `packages/shared`.
+- Сделать `apps/web/src/entities/document/api/mock-repository.ts` и `apps/web/src/entities/category/api/mock-repository.ts`.
+- Разместить JSON-данные в `apps/web/src/shared/data/categories.json` и `apps/web/src/shared/data/documents/*.json`.
 - Сразу заложить поля `parentId`, `titleGen`, `metaTitle`, `metaDesc`, `legalBasis`, `contentBody`, `updatedAt`.
+- Экспортировать адаптерный интерфейс: `mock-repository -> http-repository`.
 
-### 3) Роутинг и страницы (App Router + FSD composition)
-- Реализовать `src/app/page.tsx`, `src/app/[category]/page.tsx`, `src/app/[category]/[document]/page.tsx`, `src/app/[category]/[document]/[variation]/page.tsx`, `src/app/ai-generator/page.tsx`, `src/app/not-found.tsx`.
-- Логику страницы держать в `src/pages/*` (компоновка через widgets/features), route-file оставлять тонким.
+### 4) Роутинг и страницы (App Router + FSD composition)
+- Реализовать `apps/web/src/app/page.tsx`, `apps/web/src/app/[category]/page.tsx`, `apps/web/src/app/[category]/[document]/page.tsx`, `apps/web/src/app/[category]/[document]/[variation]/page.tsx`, `apps/web/src/app/ai-generator/page.tsx`, `apps/web/src/app/not-found.tsx`.
+- Логику страницы держать в `apps/web/src/pages/*`, route-file оставлять тонким.
 - Для document/variation применить блоки в обязательном порядке из skill `docgenerator-document-page`.
 
-### 4) Ключевые UI-блоки и фичи
-- `widgets/document-page/*`: Breadcrumbs, LeadParagraph, TrustBadge, RelatedDocs, FAQ, CTA, Disclaimer.
-- `features/document-generate/*`: режимы `filled|template`, submit flow, loading/error states.
-- `features/document-download/*`: открытие модалки, скачивание PDF/приложения.
-- `entities/document/ui/DocumentPreview` с blur и copy.
+### 5) Ключевые UI-блоки и фичи
+- `apps/web/src/widgets/document-page/*`: Breadcrumbs, LeadParagraph, TrustBadge, RelatedDocs, FAQ, CTA, Disclaimer.
+- `apps/web/src/features/document-generate/*`: режимы `filled|template`, submit flow, loading/error states.
+- `apps/web/src/features/document-download/*`: открытие модалки, скачивание PDF/приложения.
+- `apps/web/src/entities/document/ui/DocumentPreview` с blur и copy.
 
-### 5) SEO и техническая индексация
-- `src/app/sitemap.ts` — lastmod из `updatedAt` документов.
-- `src/app/robots.ts` — disallow для `/api/`, `/admin/`, `/cabinet/`, query-паттернов.
-- `src/shared/lib/schema/*` — builders для `FAQPage`, `BreadcrumbList`, `HowTo`, `WebSite/SearchAction`, `SoftwareApplication`, `ItemList`.
+### 6) SEO и техническая индексация
+- `apps/web/src/app/sitemap.ts` — lastmod из `updatedAt` документов.
+- `apps/web/src/app/robots.ts` — disallow для `/api/`, `/admin/`, `/cabinet/`, query-паттернов.
+- `apps/web/src/shared/lib/schema/*` — builders для `FAQPage`, `BreadcrumbList`, `HowTo`, `WebSite/SearchAction`, `SoftwareApplication`, `ItemList`.
 - `generateMetadata` на category/doc/variation с `{year}` replacement и canonical.
+- Подключить quality-gates в turbo: `pnpm turbo run lint typecheck build --filter=web...`.
 
-### 6) Интеграционные API-контуры (до реального backend)
-- Оставить `src/app/api/generate/route.ts` и `src/app/api/pdf/route.ts` в mock-режиме, но с финальными контрактами.
-- Подключить frontend flow только через API handlers (без прямой работы из виджета с моками).
-- Подготовить адаптер переключения источника данных: `mock-repository` -> `http-repository`.
+### 7) Интеграционные API-контуры
+- В `apps/web` оставить временные handlers в mock-режиме только для локальной разработки (при необходимости).
+- Основной frontend flow строить через репозиторий и HTTP-клиент к `apps/api`.
+- Подготовить переключение источника данных через env/feature flag: `mock-repository -> http-repository`.
+- Использовать только shared-контракт из `packages/shared`.
 
-### 7) Аналитика, UX-стабильность и quality-gate
-- Реализовать 10 событий метрики через `src/shared/lib/analytics`.
+### 8) Аналитика, UX-стабильность и quality-gate
+- Реализовать 10 событий метрики через `apps/web/src/shared/lib/analytics`.
 - Проверить mobile UX: widget above first scroll, iOS input >=16px, RelatedDocs horizontal scroll.
 - Проверить JS-disabled rendering, Lighthouse/LCP, Rich Results validation.
+- Прогнать full pipeline: `pnpm turbo run lint typecheck build`.
 
 ## Definition of Done (frontend)
 - Все маршруты 3-уровневой структуры работают и отдают корректный metadata/canonical.
 - Все document pages содержат `BreadcrumbList + FAQPage + HowTo`.
 - `sitemap.xml` и `robots.txt` соответствуют требованиям MVP.
 - Все ключевые компоненты распределены по FSD-слоям без архитектурных нарушений.
+- Контракт данных не дублируется: используется `packages/shared`.
 - Переключение на реальный backend возможно через замену repository-адаптеров без переписывания UI.

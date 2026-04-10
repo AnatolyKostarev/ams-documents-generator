@@ -1,77 +1,96 @@
 ---
 name: docgenerator-backend-step-by-step-estimate
-overview: Детализированный пошаговый план backend-реализации DocGenerator MVP с оценкой трудозатрат, зависимостями этапов и порядком интеграции с frontend.
+overview: Детализированный пошаговый план backend-реализации DocGenerator MVP в монорепозитории (pnpm workspaces + turbo) с оценкой трудозатрат, зависимостями этапов и порядком интеграции с frontend.
 todos:
-  - id: be-step0-baseline
-    content: Подготовить server-структуру и единые backend conventions (3–4ч)
+  - id: be-mono-step0
+    content: Инициализировать monorepo-infra (pnpm workspaces + turbo + shared packages) (6–8ч)
     status: pending
-  - id: be-step1-infra
+  - id: be-mono-step1
+    content: Поднять apps/api и базовые server conventions (4–5ч)
+    status: pending
+  - id: be-mono-step2
     content: Настроить Prisma/PostgreSQL, env validation, db singleton (6–7ч)
     status: pending
-  - id: be-step2-schema
+  - id: be-mono-step3
     content: Реализовать Prisma schema + миграции для Category/Document/self-relation (8–9ч)
     status: pending
-  - id: be-step3-seed
-    content: "Собрать seed-слой: категории, хабы, спицы и проверка консистентности (7–8ч)"
+  - id: be-mono-step4
+    content: Собрать seed-слой, синхронизированный с packages/shared и frontend данными (8–9ч)
     status: pending
-  - id: be-step4-templates
-    content: Реализовать templates service для выборок hub/variation/all (5–6ч)
+  - id: be-mono-step5
+    content: Реализовать templates/query service и API /api/generate (10–12ч)
     status: pending
-  - id: be-step5-generate
-    content: Внедрить /api/generate с filled/template flow и session storage (9–10ч)
+  - id: be-mono-step6
+    content: Внедрить /api/pdf, сессии, disclaimer и dev fallback (8–9ч)
     status: pending
-  - id: be-step6-pdf
-    content: Внедрить /api/pdf, html-template и единый disclaimer (7–8ч)
+  - id: be-mono-step7
+    content: Добавить rate limiting, healthcheck, error map, logging/sentry (7–8ч)
     status: pending
-  - id: be-step7-security
-    content: Добавить rate limiting, healthcheck, error map, logging/sentry (6–7ч)
-    status: pending
-  - id: be-step8-integration
-    content: Интегрировать frontend по HTTP repository и провести E2E smoke (5–6ч)
+  - id: be-mono-step8
+    content: Интегрировать apps/web с apps/api через shared-контракт и turbo quality-gates (7–8ч)
     status: pending
 isProject: false
 ---
 
-# Пошаговый план реализации Backend (с оценкой) — DocGenerator MVP
+# Пошаговый план реализации Backend (с оценкой) — DocGenerator MVP (Monorepo)
 
 ## Контекст
 Основан на текущем плане: [docgenerator-backend-implementation_cb110c53.plan.md](.cursor/plans/docgenerator-backend-implementation_cb110c53.plan.md). Ниже — практический execution-план с временной оценкой и критическим путем.
+Целевая структура монорепозитория:
+- `apps/web` — frontend
+- `apps/api` — backend
+- `packages/shared` — общие типы/схемы/константы
+- `packages/config` — общие lint/tsconfig/prettier настройки
 
 ## Итоговая оценка
-- Базовая оценка: **50–56 часов**
-- Буфер рисков (20%): **10–11 часов**
-- Итого: **60–67 часов** (примерно 8 рабочих дней)
+- Базовая оценка: **64–75 часов**
+- Буфер рисков (20%): **13–15 часов**
+- Итого: **77–90 часов** (примерно 10–12 рабочих дней)
 
 ## Последовательность внедрения
 
-### Шаг 0. Технический baseline и структура server-слоя (3–4ч)
-- Подготовить server-модули в `src/shared/lib/server/*`.
-- Зафиксировать единые server naming/conventions (env/db/templates/ai/pdf/session/rate-limit).
-- Проверить контрактные типы между frontend и backend (`DocumentData`-поля).
+### Шаг 0. Bootstrap монорепозитория и pipeline (6–8ч)
+- Настроить `pnpm-workspace.yaml`, root scripts и `turbo.json`.
+- Подключить pipeline задач (`lint`, `typecheck`, `build`, `dev`) для `apps/*` и `packages/*`.
+- Создать `packages/config` и подключить пресеты в `apps/api` и `apps/web`.
+- Создать каркас `packages/shared` для общего контрактного слоя.
 
 Результат:
-- Готова база для последовательного внедрения без хаотичного роста server-кода.
+- Monorepo готов к масштабированию, все проекты используют единый build/lint pipeline.
 
 Зависимости:
 - Нет.
 
 ---
 
-### Шаг 1. Инфраструктура БД и окружений (6–7ч)
-- Подключить Prisma + PostgreSQL.
-- Реализовать `env.ts` (Zod-валидация обязательных переменных).
-- Реализовать `db.ts` (Prisma singleton для serverless/dev).
-- Добавить локальные команды запуска/миграции в документацию проекта.
+### Шаг 1. Подъем `apps/api` и server conventions (4–5ч)
+- Развернуть backend-приложение в `apps/api`.
+- Подготовить структуру server-модулей (`env/db/templates/ai/pdf/session/rate-limit`).
+- Зафиксировать правила импорта из `packages/shared` для контрактных типов.
 
 Результат:
-- Рабочее окружение backend и предсказуемая инициализация БД.
+- Backend-слой организован и готов к подключению БД/API.
 
 Зависимости:
 - Требует шага 0.
 
 ---
 
-### Шаг 2. Prisma schema и миграции (8–9ч)
+### Шаг 2. Инфраструктура БД и окружений (6–7ч)
+- Подключить Prisma + PostgreSQL.
+- Реализовать `env.ts` c Zod-валидацией обязательных переменных.
+- Реализовать `db.ts` (Prisma singleton для dev/prod).
+- Добавить workspace-команды запуска/миграции и документацию в root README.
+
+Результат:
+- Рабочее окружение backend и предсказуемая инициализация БД.
+
+Зависимости:
+- Требует шага 1.
+
+---
+
+### Шаг 3. Prisma schema и миграции (8–9ч)
 - Описать модели `Category` и `Document` с полной SEO/контент-моделью.
 - Добавить self-relation `parentId` для hub/variation и индексы по критичным полям (`slug`, `published`, `categoryId`).
 - Выполнить миграцию и smoke-check схемы.
@@ -80,51 +99,42 @@ isProject: false
 - Стабильный контракт хранения данных для 3-уровневого роутинга и sitemap.
 
 Зависимости:
-- Требует шага 1.
+- Требует шага 2.
 
 ---
 
-### Шаг 3. Seed-слой и синхронизация с frontend данными (7–8ч)
+### Шаг 4. Seed-слой и синхронизация с shared/frontend (8–9ч)
 - Реализовать `prisma/seed.ts` с правильным порядком (категории -> хабы -> спицы).
 - Добавить 7 категорий и документы с полями расширенной модели.
+- Сверить seed-контракт с `packages/shared` и данными frontend.
 - Проверить консистентность `parentId/parentSlug`, `published`, `updatedAt`.
 
 Результат:
 - База заполнена валидными данными, совместимыми с frontend-моками.
 
 Зависимости:
-- Требует шага 2.
-
----
-
-### Шаг 4. Сервис шаблонов и контентных выборок (5–6ч)
-- Реализовать `templates.ts`: `getDocument`, `getVariation`, `getAllDocuments`, `getCategoryHubs`.
-- Встроить include для `category/parent/children`.
-- Убедиться, что сервис покрывает нужды страниц, sitemap и API без повторения логики.
-
-Результат:
-- Единый data-access слой для всех backend use-cases.
-
-Зависимости:
 - Требует шага 3.
 
 ---
 
-### Шаг 5. API `/api/generate` (filled/template) (9–10ч)
+### Шаг 5. Сервис шаблонов и API `/api/generate` (10–12ч)
+- Реализовать `templates.ts`: `getDocument`, `getVariation`, `getAllDocuments`, `getCategoryHubs`.
+- Встроить include для `category/parent/children`.
+- Убедиться, что сервис покрывает нужды страниц, sitemap и API без повторения логики.
 - Реализовать входную Zod-валидацию и sanitize полей.
 - `filled`: вызов Anthropic модели `claude-haiku-4-5-20251001`.
 - `template`: подстановка подчеркиваний без AI.
 - Сохранять результат в session-store, возвращать единый контракт ответа.
 
 Результат:
-- Основной endpoint генерации закрывает оба режима UX фронтенда.
+- Готов data-access слой и основной endpoint генерации для frontend-режимов.
 
 Зависимости:
-- Требует шагов 1 и 4.
+- Требует шагов 2 и 4.
 
 ---
 
-### Шаг 6. API `/api/pdf` и PDF-шаблонизация (7–8ч)
+### Шаг 6. API `/api/pdf`, сессии и дисклеймер (8–9ч)
 - Реализовать получение текста по `sessionId`.
 - Собрать HTML-шаблон и генерацию PDF через Puppeteer.
 - Подключить единый дисклеймер из `constants.ts`.
@@ -138,7 +148,7 @@ isProject: false
 
 ---
 
-### Шаг 7. Безопасность, лимиты, устойчивость (6–7ч)
+### Шаг 7. Безопасность, лимиты и observability (7–8ч)
 - Rate limiting (порог 10/мин, 11-й -> 429), сначала in-memory, затем Redis.
 - Единая карта ошибок 400/404/429/500.
 - `/api/health`, structured logging, интеграция Sentry.
@@ -151,9 +161,10 @@ isProject: false
 
 ---
 
-### Шаг 8. Интеграция с frontend и стабилизация контракта (5–6ч)
+### Шаг 8. Интеграция `apps/web` <-> `apps/api` через shared + turbo (7–8ч)
 - Перевести frontend на HTTP-repository без изменений widgets/pages логики.
 - Проверить, что sitemap/metadata/SEO-контуры читают актуальные backend-данные.
+- Прогнать `pnpm turbo run lint typecheck build` и E2E smoke по ключевым сценариям.
 - Провести smoke E2E: generate filled/template, pdf download, ошибки и 429.
 
 Результат:
@@ -169,12 +180,14 @@ isProject: false
 - Итерация 1 (День 1): Шаги 0–1
 - Итерация 2 (День 2): Шаг 2
 - Итерация 3 (День 3): Шаг 3
-- Итерация 4 (Дни 4–5): Шаги 4–5
-- Итерация 5 (День 6): Шаг 6
-- Итерация 6 (День 7): Шаг 7
-- Итерация 7 (День 8): Шаг 8 + буфер
+- Итерация 4 (Дни 4–5): Шаг 4
+- Итерация 5 (Дни 6–7): Шаг 5
+- Итерация 6 (День 8): Шаг 6
+- Итерация 7 (День 9): Шаг 7
+- Итерация 8 (Дни 10–11): Шаг 8 + буфер
 
 ## Основные риски и резерв
+- Риски monorepo bootstrap (turbo pipeline, workspace links, shared versioning): +3–4ч
 - Puppeteer в целевой среде (особенно serverless): +4ч
 - Таймауты/ошибки Anthropic: +2–3ч
 - Несовпадения seed и frontend-моков: +2ч
@@ -182,6 +195,7 @@ isProject: false
 
 ## Критерии завершения
 - Prisma-модель и seed полностью поддерживают 3-уровневую иерархию.
+- Контракты типов/схем централизованы в `packages/shared`.
 - API контракты стабильны для frontend режимов `filled/template` и PDF.
 - Error/limit/health/observability закрыты для staging.
 - Frontend переключен на backend через адаптерный слой без нарушения FSD-границ.
