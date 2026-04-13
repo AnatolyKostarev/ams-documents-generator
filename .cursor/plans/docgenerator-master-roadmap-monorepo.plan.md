@@ -21,7 +21,7 @@ todos:
     content: Снять mock — данные из Prisma, вызовы same-origin /api/generate и /api/pdf, ошибки UI
     status: pending
   - id: m6-seo-and-observability
-    content: SEO §9, rate limit §11.1, Sentry, Яндекс.Метрика §10, env ТЗ §12
+    content: SEO §9, rate limit §11.1, базовая наблюдаемость (логи + алерты хостинга), Яндекс.Метрика §10, env ТЗ §12; Sentry как post-MVP опция
     status: pending
   - id: m7-release-gate
     content: Критерии сдачи ТЗ §13, pipeline, LCP, E2E smoke, README и деплой
@@ -70,7 +70,9 @@ isProject: false
 - Anthropic Claude API (`claude-haiku-4-5`, подстановка в `templateBody`, ТЗ §4.3); в режиме `template` ИИ **не** вызывается (ТЗ §4.4).
 - PDF: Puppeteer (HTML → PDF), оформление и дисклеймер ТЗ §7; **development** — мок PDF без Puppeteer (ТЗ §12).
 - БД: **production/staging** — PostgreSQL + Prisma; **development** — SQLite через Prisma (ТЗ §12).
-- Аналитика: Яндекс.Метрика (ТЗ §9–10); ошибки: Sentry (ТЗ §2, §12.1).
+- Аналитика: Яндекс.Метрика (ТЗ §9–10).
+- Ошибки и наблюдаемость в MVP: структурные серверные логи + алерты платформы хостинга.
+- Sentry: отложено на post-MVP (после запуска, при появлении аккаунта и регламента алертинга).
 - Альтернативы PDF при недоступности Puppeteer на хостинге: ТЗ §2.1 (`@react-pdf/renderer`, `pdf-lib`, отдельный WeasyPrint) — зафиксировать выбор при срыве сроков/инфры.
 
 ## Суммарная оценка по этапам (чел.-часы)
@@ -195,9 +197,10 @@ isProject: false
 
 ### Этап 6. Нефункциональные требования (16–20ч)
 - SEO: `sitemap.ts`, `robots.ts` (закрыть `/api/`), JSON-LD: `WebSite` + `SearchAction`, `ItemList`, `BreadcrumbList`, `FAQPage` и пр. по ТЗ §5.4 и §9.
-- Rate limiting по числам ТЗ §11.1; `/api/health`; структурные логи; Sentry.
+- Rate limiting по числам ТЗ §11.1; `/api/health`; структурные логи; алерты хостинга.
 - Яндекс.Метрика: счётчик в layout + события §10; на **production** обязательна до релиза (ТЗ §2, §9).
 - `updatedAt` / `published` в sitemap (ТЗ §9).
+- Sentry вынесен в post-MVP backlog (отдельная задача внедрения).
 
 Результат: готовность к staging и продакшен-чеклисту.
 
@@ -243,6 +246,7 @@ flowchart TD
 - Puppeteer на целевом хостинге (Vercel/Railway) — план Б по ТЗ §2.1.
 - Качество и юридическая проверка **20** шаблонов (ТЗ §8).
 - Стабильность интеграции Anthropic и лимитов по стоимости.
+- Отсутствие Sentry в MVP может увеличить время реакции на edge-case ошибки; компенсируется логами и алертами хостинга.
 
 ## Definition of Done (Master = ТЗ §13)
 - Опубликованы **все 20** документов из ТЗ §8 с валидными URL.
