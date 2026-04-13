@@ -14,8 +14,11 @@ todos:
   - id: m3-backend-core
     content: Seed 20 документов §8, templates service, POST /api/generate и /api/pdf, сессии, валидация
     status: pending
-  - id: m4-frontend-core
-    content: Роутинг и виджеты ТЗ §5–6 (DocumentWidget, Preview, Modal, Faq, Breadcrumbs, CTA)
+  - id: m4a-frontend-routing
+    content: Роутинг, страница документа, generateStaticParams/generateMetadata, canonical, OG (ТЗ §5.1–§5.3)
+    status: pending
+  - id: m4b-frontend-widgets
+    content: Виджеты ТЗ §6 (DocumentWidget, DocumentPreview, DownloadModal, FaqBlock, Breadcrumbs, CTA) на фикстурах
     status: pending
   - id: m5-integration
     content: Снять mock — данные из Prisma, вызовы same-origin /api/generate и /api/pdf, ошибки UI
@@ -48,6 +51,8 @@ isProject: false
 | Клик CTA PDF Commander | ≥ 20% от генерирующих | Метрика, цель `cta_click` |
 | Ошибки генерации | < 2% запросов | Серверные логи |
 
+> **Реалистичность**: метрики 35% генерирующих и 20% CTA-кликов — **амбициозные** цели без A/B-тестирования. Принять как ориентир для итераций после запуска, не как критерий сдачи MVP. Критерием сдачи остаётся ТЗ §13 (функциональность, технические параметры).
+
 ## Источники планирования (наследие)
 - [docgenerator-frontend-implementation_55da44f8.plan.md](.cursor/plans/docgenerator-frontend-implementation_55da44f8.plan.md)
 - [docgenerator-frontend-step-by-step-estimate_62870420.plan.md](.cursor/plans/docgenerator-frontend-step-by-step-estimate_62870420.plan.md)
@@ -67,7 +72,7 @@ isProject: false
 
 ## Технологический стек (ТЗ §2)
 - Next.js App Router (SSR/SSG), TypeScript, Tailwind.
-- Anthropic Claude API (`claude-haiku-4-5`, подстановка в `templateBody`, ТЗ §4.3); в режиме `template` ИИ **не** вызывается (ТЗ §4.4).
+- Anthropic Claude API (`claude-haiku-4-5-20251001`, подстановка в `templateBody`, ТЗ §4.3); в режиме `template` ИИ **не** вызывается (ТЗ §4.4).
 - PDF: Puppeteer (HTML → PDF), оформление и дисклеймер ТЗ §7; **development** — мок PDF без Puppeteer (ТЗ §12).
 - БД: **production/staging** — PostgreSQL + Prisma; **development** — SQLite через Prisma (ТЗ §12).
 - Аналитика: Яндекс.Метрика (ТЗ §9–10).
@@ -79,26 +84,30 @@ isProject: false
 
 | Этап | Содержание | Часы (мин–макс) |
 |------|------------|-----------------|
-| 0 | Foundation monorepo | 12–16 |
+| 0 | Foundation monorepo + ADR хостинга и session store | 12–16 |
 | 1 | Скелет `apps/web` | 10–12 |
-| 2 | Shared + Prisma + seed | 14–18 |
-| 3 | Backend в `apps/web` (generate, pdf, сессии) | 26–30 |
-| 4 | Frontend (страницы, виджеты) | 32–38 |
+| 2 | Shared + Prisma + seed (+ старт юр. вычитки шаблонов) | 14–18 |
+| 3 | Backend в `apps/web` (generate, pdf, session store) | 26–30 |
+| 4a | Frontend: роутинг + страница документа | 16–20 |
+| 4b | Frontend: виджеты (DocumentWidget, Preview, Modal и др.) | 16–18 |
 | 5 | Интеграция БД + same-origin API | 12–16 |
-| 6 | SEO, rate limit, Sentry, Метрика | 16–20 |
+| 6 | SEO, rate limit, Метрика, логи | 16–20 |
 | 7 | Release gate, README, деплой | 8–10 |
-| **Итого, если делать всё подряд одним потоком** | | **130–160** |
+| **T** | **Тестирование** (unit Zod/sanitize + integration API/rate-limit + E2E smoke) | **12–20** |
+| **Итого, если делать всё подряд одним потоком** | | **142–180** |
 
-**Критический путь при параллели** (после этапа 2 этапы 3 и 4 ведутся одновременно):  
-`0 + 1 + 2 + max(3, 4) + 5 + 6 + 7` → **104–130 ч** (≈ **13–16** рабочих дней при 8 ч/день на команду в сумме по критическому пути; фактически нужны **два параллельных исполнителя** на этапах 3–4 или сдвиг сроков).
+> Тестирование распределено по этапам (unit — этап 2, integration — этап 3, E2E — этап 5/7), но выделено отдельной строкой, так как отсутствовало в исходном плане и добавляет **12–20 ч**.
+
+**Критический путь при параллели** (после этапа 2 этапы 3 и 4 ведутся одновременно):
+`0 + 1 + 2 + max(3, 4a+4b) + 5 + 6 + 7 + T` → **116–150 ч** (≈ **15–19** рабочих дней; фактически нужны **два параллельных исполнителя** на этапах 3–4 или сдвиг сроков).
 
 **Календарь (ориентир для планирования)**
 
-- **Один middle+/senior full-time, последовательно:** **130–160 ч** → **~16–20 рабочих дней** (≈ **3,5–4,5 недели** при 8 ч/день), без буфера на правки контента и инфраструктуру.
-- **Два разработчика с разделением backend/frontend после этапа 2:** критический путь **104–130 ч** → **~13–16 рабочих дней** (≈ **2,5–3,5 недели**) плюс буфер на ревью, Puppeteer/хостинг, юридическую вычитку 20 документов.
-- **Срок MVP в ТЗ:** **4–6 недель** — согласуется с оценкой, если заложить буфер, непредвиденные правки SEO/хостинга и время на настройку Метрики/Вебмастера.
+- **Один middle+/senior full-time, последовательно:** **142–180 ч** → **~18–23 рабочих дня** (≈ **4–5 недель** при 8 ч/день), без буфера на правки контента и инфраструктуру.
+- **Два разработчика с разделением backend/frontend после этапа 2:** критический путь **116–150 ч** → **~15–19 рабочих дней** (≈ **3–4 недели**) плюс буфер на ревью, Puppeteer/хостинг, юридическую вычитку 20 документов.
+- **Срок MVP в ТЗ:** **4–6 недель** — по-прежнему достижим, но буфер при одном разработчике сужается; при двух разработчиках остаётся комфортный запас.
 
-Наследуемые планы (раздельный frontend/backend) давали **161–190 ч** суммарно и **≈95–120 ч** календарных при сильной параллели; после объединения в `apps/web` пересчёт по этапам выше — основной ориентир для дорожной карты.
+Наследуемые планы (раздельный frontend/backend) давали **161–190 ч** суммарно без учёта тестирования; новая оценка **142–180 ч** ниже за счёт объединения в `apps/web` и устранения дублирования, несмотря на добавление тестового слоя.
 
 ## Деплой и окружения (ТЗ §12)
 | Окружение | Назначение | Конфигурация |
@@ -119,9 +128,23 @@ isProject: false
 - `POST /api/pdf` — `sessionId`, `mode`; ответ `application/pdf`, `Content-Disposition` (ТЗ §4.2).
 - Валидация и sanitize: ТЗ §11.2 (HTML-стрип, **до 500 символов** на поле, **тело ≤ 10 КБ**, `documentId` только из белого списка БД).
 
+## Стратегия тестирования
+Минимально необходимое для MVP:
+
+| Уровень | Покрытие | Инструмент |
+|---------|----------|------------|
+| Unit | Zod-схемы в `packages/shared`, утилиты sanitize/html-strip | Vitest |
+| Integration | `POST /api/generate` (оба режима, мок Anthropic), `POST /api/pdf` (мок Puppeteer), rate limit (429 на 11-м запросе) | Vitest + `msw` или прямые fetch-тесты |
+| E2E smoke | Полный флоу filled+template → скачать PDF на **staging** (PostgreSQL + Puppeteer) | Playwright (1 spec) |
+
+- Anthropic вызовы в тестах — **обязательно мокировать** (`msw` или `vi.mock`), чтобы не тратить токены и не зависеть от сети.
+- В `turbo.json` задача `test` запускается до `build`; CI не пропускает красный `test`.
+
 ## Rate limiting (ТЗ §11.1)
 - **10** запросов к `/api/generate` с IP в минуту, **50** в час; ответ **429** с текстом из ТЗ.
-- Реализация: Upstash Redis + `@upstash/ratelimit` (или эквивалент с теми же лимитами).
+- **MVP (single-instance):** `lru-cache` in-memory — нулевые внешние зависимости, достаточно для одного инстанса.
+- **Multi-instance / production:** Upstash Redis + `@upstash/ratelimit`. Решение принимается в этапе 0 вместе с выбором хостинга: если Railway/single-dyno — in-memory; если Vercel Edge (несколько инстансов) — Upstash обязателен.
+- Переход между реализациями скрыт за общим интерфейсом `RateLimiter` — смена без переработки Route Handler.
 
 ## Ключевые UI-компоненты (ТЗ §6)
 - `DocumentWidget` — режимы, шаги, требования §6.1 (в т.ч. сохранение полей при смене режима, приватность, автофокус).
@@ -138,8 +161,10 @@ isProject: false
 ### Этап 0. Foundation монорепозитория (12–16ч)
 - `pnpm-workspace.yaml`, root `package.json`, `turbo.json`, задачи `dev`, `lint`, `typecheck`, `build`, `test`.
 - `packages/config`, `packages/shared`, кэширование turbo.
+- **ADR-001 — Хостинг-платформа:** выбрать Railway vs Vercel **до старта этапа 3**. От этого зависят Puppeteer-стратегия (`@sparticuz/chromium` для Vercel Edge vs нативный Chromium на Railway) и rate limit реализация.
+- **ADR-002 — Session store:** выбрать реализацию до старта этапа 3. Опции: `Map` in-memory (MVP single-instance, нет внешних зависимостей) или Upstash Redis (multi-instance, уже нужен для rate limit при Vercel). Зафиксировать в `apps/web/src/lib/session/`.
 
-Результат: основа для `apps/web` и общих пакетов.
+Результат: основа для `apps/web` и общих пакетов; хостинг и session store зафиксированы в ADR.
 
 ---
 
@@ -156,31 +181,47 @@ isProject: false
 - В `packages/shared`: типы полей формы, FAQ, DTO для generate/pdf, Zod-схемы.
 - `schema.prisma` по ТЗ §3.2; миграции под **SQLite (dev)** и **PostgreSQL (staging/prod)** или единая схема с переключением `provider` по env.
 - JSON seed из `data/documents/` (или аналог) → загрузка в БД; контракт страниц = данные из Prisma.
+- **⚡ Параллельный трек: юридическая вычитка 20 шаблонов.** Запустить сразу после фиксации структуры полей. Тексты шаблонов (`templateBody`, `legalBasis`) должны пройти согласование **до** этапа 5 — иначе публикация задержится. Ответственный за согласование фиксируется здесь.
 
-Результат: одна модель данных, совместимая с ТЗ и SEO-полями.
+Результат: одна модель данных, совместимая с ТЗ и SEO-полями; юридическая вычитка в процессе параллельно.
 
 ---
 
 ### Этап 3. Core backend в `apps/web` (26–30ч)
 - Сервис шаблонов: выбор документа по белому списку, `templateBody`, `legalBasis`, поля формы.
 - `POST /api/generate`: ИИ только для `filled` (ТЗ §4.3), `template` без Anthropic; session-store для PDF.
-- `POST /api/pdf`: Puppeteer по ТЗ §7 на **staging/prod**; на **development** — мок-буфер PDF без запуска браузера (ТЗ §12).
+- **Session store** (`apps/web/src/lib/session/`): реализация по ADR-002. Интерфейс `SessionStore { set(id, data, ttlSec): void; get(id): GeneratedDoc | null }`. Dev/test — `MapSessionStore`; production — `UpstashSessionStore` или тот же Map при single-instance Railway. TTL = 15 мин.
+- `POST /api/pdf`: Puppeteer по ТЗ §7 на **staging/prod**; на **development** — мок-буфер PDF без запуска браузера (ТЗ §12). Если хостинг Vercel — использовать `@sparticuz/chromium` (зафиксировано в ADR-001).
 - Дисклеймер в PDF — ТЗ §7.2.
+- Integration-тесты: `POST /api/generate` (оба режима, мок Anthropic), rate limit (11-й запрос → 429).
 
-Результат: контракт API как в ТЗ §4.
+Результат: контракт API как в ТЗ §4; тесты зелёные.
+
+Зависимости: этап 2, ADR-001, ADR-002.
+
+---
+
+### Этап 4a. Frontend — роутинг и страница документа (16–20ч)
+- Маршруты: `/`, `/[category]/`, `/[category]/[document]/`, `/ai-generator/`, `not-found`; главная и категории — требования ТЗ §5.1–§5.2.
+- Страница документа: **порядок блоков** строго как ТЗ §5.3; `generateStaticParams` / `generateMetadata`, canonical, OG.
+- Источник данных — статические фикстуры (JSON) до замены на Prisma в этапе 5.
+
+**Ворота качества 4a:** страница документа рендерится, `<title>` и `<link rel="canonical">` корректны, `generateStaticParams` отдаёт все 20 slug, нет гидрации-ошибок в консоли.
 
 Зависимости: этап 2.
 
 ---
 
-### Этап 4. Core frontend (32–38ч)
-- Маршруты: `/`, `/[category]/`, `/[category]/[document]/`, `/ai-generator/`, `not-found`; главная и категории — требования ТЗ §5.1–§5.2.
-- Страница документа: **порядок блоков** строго как ТЗ §5.3; `generateStaticParams` / `generateMetadata`, canonical, OG.
-- Виджеты: §6; мобильный приоритет виджета до первого скролла; `text-base` на инпутах (ТЗ §9).
+### Этап 4b. Frontend — виджеты (16–18ч)
+- `DocumentWidget` — режимы, шаги, требования §6.1 (сохранение полей при смене режима, автофокус).
+- `DocumentPreview` — размытие нижней части, полный текст при копировании, CTA и тост §6.2.
+- `DownloadModal` — **две** рабочие кнопки §6.3.
+- `FaqBlock` + `Breadcrumbs` — разметка §6.4, §5.4; мобильный приоритет виджета до первого скролла; `text-base` на инпутах (ТЗ §9).
+- Дисклеймер на страницах — ТЗ §11.3.
 
-Результат: полный UX-флоу на mock или статических данных до полной подстановки Prisma.
+**Ворота качества 4b:** полный UX-флоу (filled + template) проходит на фикстурах; мок-вызов `/api/generate` возвращает текст в `DocumentPreview`; модалка открывается и закрывается.
 
-Зависимости: этап 2.
+Зависимости: этап 4a.
 
 ---
 
@@ -217,36 +258,48 @@ isProject: false
 Результат: MVP принят по ТЗ.
 
 ## Критический путь
-`Этап 0 → 1 → 2 → (Этап 3 || Этап 4) → Этап 5 → Этап 6 → Этап 7`
+`Этап 0 → 1 → 2 → (Этап 3 || Этап 4a → 4b) → Этап 5 → Этап 6 → Этап 7`
 
 ## План параллелизма
-- После этапа 2: поток A — API, Prisma seed из 20 документов, generate/pdf; поток B — страницы и виджеты (на фикстурах с последующей заменой на БД).
+- **После этапа 0:** старт ADR-001 (хостинг) и ADR-002 (session store).
+- **После этапа 2:** поток A — backend (этап 3: API, seed, generate/pdf, session store); поток B — frontend (этап 4a: роутинг+страница → этап 4b: виджеты, на фикстурах).
+- **Параллельный трек (вне кода):** юридическая вычитка 20 шаблонов — стартует в этапе 2, должна завершиться до этапа 5.
 
 ## Mermaid-схема зависимостей
 ```mermaid
 flowchart TD
-  m0[Stage0Monorepo] --> m1[Stage1WebSkeleton]
+  m0[Stage0Monorepo+ADR] --> m1[Stage1WebSkeleton]
   m1 --> m2[Stage2SharedPrisma]
-  m2 --> m3[Stage3ApiLib]
-  m2 --> m4[Stage4Frontend]
+  m2 --> m3[Stage3Backend]
+  m2 --> m4a[Stage4aRouting]
+  m4a --> m4b[Stage4bWidgets]
   m3 --> m5[Stage5Integration]
-  m4 --> m5
+  m4b --> m5
   m5 --> m6[Stage6NFR]
   m6 --> m7[Stage7ReleaseGate]
+  m2 -.->|параллельный трек| legal[ЮридическаяВычитка]
+  legal -.->|до этапа 5| m5
 ```
 
 ## Контрольные ворота качества
-- После этапа 2: контракт в `packages/shared`, Prisma соответствует ТЗ §3.2.
-- После этапов 3/4: typecheck; локальные smoke на dev (мок PDF).
-- После этапа 5: E2E на staging (PostgreSQL + Puppeteer).
-- После этапа 7: выполнен чеклист ТЗ §13, Метрика проверена отладчиком.
+- **После этапа 0:** ADR-001 и ADR-002 зафиксированы; хостинг-платформа выбрана.
+- **После этапа 2:** контракт в `packages/shared` согласован; Prisma соответствует ТЗ §3.2; юридическая вычитка запущена.
+- **После этапа 3:** integration-тесты зелёные (оба режима generate, rate limit 429); `typecheck` проходит.
+- **После этапа 4a:** страница документа рендерится; `generateStaticParams` покрывает 20 slug; canonical и OG корректны.
+- **После этапа 4b:** полный UX-флоу на фикстурах; ворота качества 4b выполнены.
+- **После этапа 5:** E2E smoke на staging (PostgreSQL + Puppeteer); юридическая вычитка завершена (`published: true`).
+- **После этапа 7:** выполнен чеклист ТЗ §13; все 10 событий Метрики проверены отладчиком; `pnpm turbo run lint typecheck build test` зелёный.
 
 ## Риски
-- Monorepo и drift конфигов (`turbo`, workspaces).
-- Puppeteer на целевом хостинге (Vercel/Railway) — план Б по ТЗ §2.1.
-- Качество и юридическая проверка **20** шаблонов (ТЗ §8).
-- Стабильность интеграции Anthropic и лимитов по стоимости.
-- Отсутствие Sentry в MVP может увеличить время реакции на edge-case ошибки; компенсируется логами и алертами хостинга.
+
+| Риск | Вероятность | Влияние | Митигация |
+|------|------------|---------|-----------|
+| Monorepo drift конфигов (`turbo`, workspaces) | Средняя | Среднее | `packages/config` как единый источник; turbo `lint`+`typecheck` в CI обязательны |
+| Puppeteer на хостинге | Высокая (Vercel) | Высокое | ADR-001 в этапе 0; план Б (`@sparticuz/chromium` или Railway) готов до старта этапа 3 |
+| Юридическая вычитка 20 шаблонов задержится | Высокая | Высокое | Старт параллельного трека в этапе 2; публикация через `published: true` после согласования, не блокирует технический деплой |
+| Стабильность Anthropic API / стоимость токенов | Средняя | Среднее | Мокировать в тестах; добавить timeout + fallback-ошибку пользователю; бюджет токенов отслеживать с первого staging-запуска |
+| Session store при горизонтальном масштабировании | Низкая (MVP single-instance) | Высокое | ADR-002 в этапе 0; интерфейс `SessionStore` позволяет заменить реализацию без изменения API-слоя |
+| Отсутствие Sentry в MVP → медленная реакция на edge-кейсы | Низкая | Низкое | Структурные серверные логи + алерты хостинга; Sentry — post-MVP backlog |
 
 ## Definition of Done (Master = ТЗ §13)
 - Опубликованы **все 20** документов из ТЗ §8 с валидными URL.
@@ -254,4 +307,4 @@ flowchart TD
 - SEO: sitemap, robots, уникальные title/canonical, валидные FAQ и Breadcrumb schema, контент без JS.
 - LCP ≤ 2.5 с (моб.), нет лишних ошибок в консоли.
 - Все **10** событий Метрики из ТЗ §10 настроены и проверены.
-- `pnpm turbo run lint typecheck build` стабильно проходит; README и деплой описаны.
+- `pnpm turbo run lint typecheck build test` стабильно проходит; README и деплой описаны.
