@@ -46,7 +46,7 @@ isProject: false
 - Модели `Category`, `Document`, связи hub/variation.
 - Поля SEO и контента: `titleH1`, `metaTitle`, `metaDesc`, `faq`, `published`, `updatedAt`.
 - Seed 20 документов MVP + структура под хвосты.
-- Валидация data-contract (slug uniqueness, parent-child, category consistency).
+- Валидация data-contract (уникальность URL-идентификаторов, parent-child, category consistency).
 
 ### Этап 3 — API core generate/pdf/security (28–36 ч)
 - `POST /api/generate` (`filled` + `template`).
