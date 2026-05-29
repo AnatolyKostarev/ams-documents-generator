@@ -7,7 +7,7 @@ todos:
     status: completed
   - id: phase-1-skeleton
     content: "Этап 1: apps/web FSD + apps/api server conventions, подключение config (10–12ч)"
-    status: pending
+    status: completed
   - id: phase-2-contract
     content: "Этап 2: packages/shared контракт + Zod, mock repos + JSON seed, валидация data-contract (9–11ч)"
     status: pending
@@ -225,7 +225,7 @@ flowchart TD
 **Цель:** два приложения с согласованными conventions.
 
 **apps/web (6–7 ч):**
-- Next.js App Router, FSD: `src/app`, `pages`, `widgets`, `features`, `entities`, `shared`.
+- Next.js App Router, FSD: `src/app`, `views` (слой pages), `widgets`, `features`, `entities`, `shared`.
 - Alias `@/*`, ESLint-ограничения cross-layer (skill `fsd-conventions`).
 - Подключить `packages/config`.
 

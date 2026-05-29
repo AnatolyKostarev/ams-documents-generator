@@ -31,12 +31,23 @@ pnpm run test
 ## Структура
 
 ```text
-apps/web/           # Frontend (Next.js, FSD) — этап 1+
-apps/api/           # Backend API (Next.js) — этап 1+
+apps/web/           # Frontend (Next.js, FSD; views = page layer) — :3000
+apps/api/           # Backend API (Next.js) — :3001
 packages/shared/    # Общий контракт данных и API DTO
 packages/config/    # ESLint, Prettier, TSConfig presets
 docs/adr/           # Architecture Decision Records
 ```
+
+## Dev-серверы (этап 1+)
+
+```bash
+pnpm install
+pnpm dev              # web :3000 + api :3001 (turbo)
+pnpm --filter @docgenerator/web dev
+pnpm --filter @docgenerator/api dev
+```
+
+API health: http://localhost:3001/api/health
 
 ## Локальная БД
 
