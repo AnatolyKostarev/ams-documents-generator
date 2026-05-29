@@ -15,6 +15,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests"
   },
+  "dependencies": {
+    "zod": "^3.25.36"
+  },
   "devDependencies": {
     "@docgenerator/config": "workspace:*",
     "eslint": "^9.28.0",

@@ -10,7 +10,7 @@ todos:
     status: completed
   - id: phase-2-contract
     content: "Этап 2: packages/shared контракт + Zod, mock repos + JSON seed, валидация data-contract (9–11ч)"
-    status: pending
+    status: completed
   - id: phase-3a-backend-db
     content: "Этап 3a: Prisma schema, миграции, seed синхронный с shared/mock (22–25ч)"
     status: pending

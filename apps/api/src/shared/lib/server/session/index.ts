@@ -1,9 +1,7 @@
-import type { PlaceholderContract } from '@docgenerator/shared'
-
 /** Generated document payload stored between /api/generate and /api/pdf (ADR-002). */
 export type GeneratedDocSession = {
   documentText: string
-  meta?: PlaceholderContract
+  documentId?: string
 }
 
 export interface SessionStore {

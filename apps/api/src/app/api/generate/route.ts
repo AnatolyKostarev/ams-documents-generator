@@ -1,3 +1,5 @@
+import { generateRequestSchema } from '@docgenerator/shared'
+
 import { checkRateLimit } from '@/shared/lib/server'
 
 export async function POST(request: Request) {
@@ -16,11 +18,21 @@ export async function POST(request: Request) {
     )
   }
 
+  const body = await request.json().catch(() => null)
+  const parsed = generateRequestSchema.safeParse(body)
+  if (!parsed.success) {
+    return Response.json(
+      { success: false, error: 'Invalid request body' },
+      { status: 400 }
+    )
+  }
+
   return Response.json(
     {
       success: false,
       error: 'Not implemented',
       message: 'POST /api/generate — Phase 4a',
+      received: { documentId: parsed.data.documentId, mode: parsed.data.mode },
     },
     { status: 501 }
   )

@@ -1,9 +1,10 @@
-/**
- * Shared contract package — types, Zod schemas, and constants for web + api.
- * Full DocumentData contract is added in Phase 2 (data-contract-documents rule).
- */
 export const SHARED_PACKAGE_VERSION = '0.0.0' as const
 
-export type PlaceholderContract = {
-  readonly _phase: 'foundation'
-}
+export * from './types'
+export * from './constants/disclaimer'
+export * from './schemas/generate'
+export * from './schemas/pdf'
+export * from './schemas/document-json'
+export * from './lib/replace-year'
+export * from './lib/map-document'
+export * from './lib/validate-seed'

@@ -1,0 +1,51 @@
+{
+  "slug": "schet-oferta",
+  "categorySlug": "uslugi",
+  "parentSlug": "dogovor-uslug",
+  "titleH1": "Счёт-оферта",
+  "titleGen": "Сгенерировать счёт-оферта",
+  "metaTitle": "Счёт-оферта на услуги {year}",
+  "metaDesc": "Счёт-оферта: заполните поля и скачайте PDF бесплатно в {year}.",
+  "leadShort": "Быстрая генерация: счёт-оферта.",
+  "leadFull": "Заполните форму, чтобы получить готовый текст счёт-оферта с учётом введённых данных.",
+  "legalBasis": "Гражданский кодекс РФ и отраслевые нормативные акты (уточните применимость к вашей ситуации).",
+  "templateBody": "СЧЁТ-ОФЕРТА\n\nДанные: {{customer}}, {{contractor}}, {{amount}}\n\nНастоящий документ сформирован автоматически.",
+  "contentBody": "<p>На этой странице вы можете сформировать <strong>счёт-оферта</strong> онлайн.</p><p>Укажите данные в форме и скачайте результат в PDF.</p>",
+  "formFields": [
+    {
+      "name": "customer",
+      "label": "Заказчик",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "contractor",
+      "label": "Исполнитель",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "amount",
+      "label": "Сумма",
+      "type": "number",
+      "required": true
+    }
+  ],
+  "faq": [
+    {
+      "question": "Можно ли скачать PDF бесплатно?",
+      "answer": "Да, после заполнения формы доступно скачивание PDF."
+    },
+    {
+      "question": "Нужна ли регистрация?",
+      "answer": "Нет, базовая генерация доступна без регистрации."
+    }
+  ],
+  "relatedIds": [
+    "dogovor-uslug"
+  ],
+  "published": true,
+  "priority": 90,
+  "createdAt": "2026-01-15T00:00:00.000Z",
+  "updatedAt": "2026-05-20T00:00:00.000Z"
+}

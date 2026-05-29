@@ -47,7 +47,7 @@ pnpm --filter @docgenerator/web dev
 pnpm --filter @docgenerator/api dev
 ```
 
-API health: http://localhost:3001/api/health
+[API health](http://localhost:3001/api/health)
 
 ## Локальная БД
 
